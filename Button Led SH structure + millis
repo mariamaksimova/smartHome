@@ -1,0 +1,121 @@
+
+#include <stdio.h>
+
+const int LED_1 = 13;
+
+const int LED_BUTTON_1 = 53;
+const int BUTTON_1 = 9;
+const int BUTTON_2 = 8;
+const int delayTime = 300;
+const int delayLedTime = 3000;
+
+struct State {
+  unsigned long changeTime;
+  int lastVal;
+  int newVal;
+};
+
+
+void setup()
+{
+ pinMode(LED_1, OUTPUT);
+ 
+ pinMode(LED_BUTTON_1, OUTPUT);
+ pinMode(BUTTON_1, INPUT);
+ pinMode(BUTTON_2, INPUT);
+ Serial.begin(9600);
+}
+
+
+unsigned long timeDiff(unsigned long time1, unsigned long time2) {
+  return abs(time1-time2);
+}
+
+
+int debounce(int newVal, int lastVal, unsigned long curTime, unsigned long& changedTime)
+{
+  
+    if (timeDiff(curTime,changedTime) < delayTime)  return lastVal; //если время не вышло - как будто ничего не нажимали и не отпускали
+     
+     //иначе - вернуть новое значение (оно могло и не измениться - проверка в вызываемой функции
+     return newVal;
+}
+
+  
+void loop()
+{
+
+  static unsigned long button1ChangedTime = millis();
+  static int button1Last = LOW;
+  
+  static unsigned long button2ChangedTime = millis();
+  static int button2Last = LOW;
+  
+  static int ledLast = LOW;
+  int ledNew     = ledLast;
+  static unsigned long ledChangedTime = millis();
+  static char strMessage[100]="";
+  
+
+  unsigned long currentTime = millis();  //текущее время выполнения этого прохода цикла
+
+
+//  if (ledLast == HIGH && timeDiff(currentTime,ledChangedTime) >= delayLedTime) {
+//
+//    ledLast = LOW;
+//  } 
+  
+
+ //1 button 
+int button1Test = digitalRead(BUTTON_1);
+ 
+int button1New = debounce(button1Test, button1Last, currentTime, button1ChangedTime);
+
+if (button1New != button1Last) {
+  sprintf(strMessage,"change detected: %d -> %d -> %d",button1Last, button1Test,  button1New );
+  Serial.println(strMessage);
+
+   //detect out condition (pressed)
+   if (button1Last == HIGH && button1New == LOW) 
+   {
+      ledNew = !ledLast;   //change Led state
+   }
+    button1Last = button1New;
+    button1ChangedTime = currentTime;
+  //button1changedTime was already updated in debounce!
+}
+  
+ //if (button1Last == HIGH && button1New == LOW)
+ //{
+    //if (debounce(button1New, button1Last, currentTime, button1ChangedTime)) {
+          ledNew = !ledLast;
+
+    //}
+ // }
+ 
+// if (button1Val != button1Last) {
+    
+    
+// }
+ 
+//2 button
+//  int button2New = digitalRead(BUTTON_2);
+  
+//  int button2Val = debounce(button2New, button2Last, currentTime, button2ChangedTime);
+  
+// if (button2Last == LOW && button2Val == HIGH)
+// {
+//        ledNew = !ledLast;
+// }
+
+// button2Last = button2Val;
+  
+ if (ledNew != ledLast) {
+     digitalWrite(LED_1, ledNew);
+     ledLast = ledNew;
+     ledChangedTime = currentTime;
+ }
+ 
+ //digitalWrite(LED_BUTTON_1, !ledLast);
+ 
+}
