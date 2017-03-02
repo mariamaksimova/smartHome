@@ -1,0 +1,33 @@
+const int LED_1 = 49;
+
+const int LED_BUTTON_1 = 53;
+const int BUTTON_1 = 51;
+
+int ledState = LOW;
+
+int buttonState = LOW;
+
+void setup()
+{
+ pinMode(LED_1, OUTPUT);
+ 
+ pinMode(LED_BUTTON_1, OUTPUT);
+ pinMode(BUTTON_1, INPUT);
+}
+
+void loop()
+{
+ int buttonVal = HIGH;
+  
+ buttonState = digitalRead(BUTTON_1);
+ delay(5);
+ buttonVal = digitalRead(BUTTON_1);
+
+ if (buttonState == LOW && buttonVal == HIGH)
+ {
+  ledState = !ledState;
+ }
+ buttonState = buttonVal;
+ digitalWrite(LED_1, ledState);
+ digitalWrite(LED_BUTTON_1, !ledState);
+}
